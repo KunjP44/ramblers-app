@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Dashboard | Ramblers</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="dashboard-body">
+    <div class="app-wrapper">
+        <nav class="app-nav">
+            <div class="nav-brand-desktop">
+                <img src="images/logo.png" alt="Ramblers" style="width: 40px; height: 40px;">
+                <span>Ramblers</span>
+            </div>
+            <button class="nav-btn active" id="nav-home">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                        stroke-width="2" fill="none">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg></span>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-btn" id="nav-timetable">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                        stroke-width="2" fill="none">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg></span>
+                <span class="nav-label">Timetable</span>
+            </button>
+            <button class="nav-btn" id="nav-orbit">
+                <span class="nav-icon"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor"
+                        stroke-width="2" fill="none">
+                        <circle cx="12" cy="12" r="2"></circle>
+                        <path
+                            d="M16.24 7.76a6 6 0 0 1 0 8.49m-8.48-.01a6 6 0 0 1 0-8.49m11.31-2.82a10 10 0 0 1 0 14.14m-14.14 0a10 10 0 0 1 0-14.14">
+                        </path>
+                    </svg></span>
+                <span class="nav-label">Orbit</span>
+            </button>
+        </nav>
+
+        <main class="app-content" id="tab-home">
+            <header class="dash-header staggered-1">
+                <div class="header-top">
+                    <div>
+                        <h1 id="user-greeting" class="skeleton skeleton-text" style="width: 200px;">Loading...</h1>
+                        <p id="user-batch" class="batch-tag skeleton skeleton-text"
+                            style="width: 120px; display: block; margin-top: 8px;">Loading...</p>
+                    </div>
+                    <div class="profile-avatar" onclick="openProfile()" style="cursor: pointer;">
+                        <img src="" id="user-avatar" alt="Profile" style="display: none;">
+                        <div id="avatar-placeholder" class="skeleton skeleton-circle"
+                            style="width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--glass-border);">
+                        </div>
+                    </div>
+                </div>
+                <div id="health-status-bar" class="health-status skeleton">
+                    <span class="status-icon" id="health-status-icon"></span>
+                    <span class="status-text"><strong id="health-status-text"
+                            style="opacity: 0;">Analyzing...</strong></span>
+                </div>
+            </header>
+
+            <div class="gateway-grid staggered-2">
+                <div class="glass-card gateway-card" onclick="openWCTHub()">
+                    <div class="gateway-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                            fill="none">
+                            <line x1="18" y1="20" x2="18" y2="10"></line>
+                            <line x1="12" y1="20" x2="12" y2="4"></line>
+                            <line x1="6" y1="20" x2="6" y2="14"></line>
+                        </svg>
+                    </div>
+                    <div class="gateway-text">
+                        <h3>WCT Hub</h3>
+                        <p>Trends & History</p>
+                    </div>
+                </div>
+                <div class="glass-card gateway-card" style="opacity: 0.6;">
+                    <div class="gateway-icon">
+                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2"
+                            fill="none">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <circle cx="12" cy="12" r="6"></circle>
+                            <circle cx="12" cy="12" r="2"></circle>
+                        </svg>
+                    </div>
+                    <div class="gateway-text">
+                        <h3>Prep Hub</h3>
+                        <p>Mock Exams (Soon)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UPGRADED METRICS CAROUSEL -->
+            <div class="staggered-3" id="student-metrics-view">
+                <div class="section-title">Performance Metrics</div>
+                <div class="carousel-container">
+                    <div class="glass-card metric-card gold-border">
+                        <div class="metric-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="var(--brand-gold)" stroke-width="2"
+                                fill="none">
+                                <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                                <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                                <path d="M4 22h16"></path>
+                                <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                                <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                                <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-value skeleton skeleton-text" id="metric-cumulative" style="width: 80px;">--
+                        </div>
+                        <div class="metric-label">Cumulative Average</div>
+                        <div class="metric-progress-bg">
+                            <div class="metric-progress-fill" id="bar-cumulative"
+                                style="width: 0%; background: var(--brand-gold);"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(45 12 12)"></ellipse>
+                                <ellipse cx="12" cy="12" rx="11" ry="4" transform="rotate(-45 12 12)"></ellipse>
+                            </svg>
+                        </div>
+                        <div class="metric-value skeleton skeleton-text" id="metric-physics" style="width: 80px;">--
+                        </div>
+                        <div class="metric-label">Physics Avg</div>
+                        <div class="metric-progress-bg">
+                            <div class="metric-progress-fill" id="bar-physics" style="width: 0%; background: #60a5fa;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <path d="M10 2v7.31"></path>
+                                <path d="M14 9.3V2"></path>
+                                <path d="M8.5 2h7"></path>
+                                <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
+                                <path d="M5.52 16h12.96"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-value skeleton skeleton-text" id="metric-chemistry" style="width: 80px;">--
+                        </div>
+                        <div class="metric-label">Chemistry Avg</div>
+                        <div class="metric-progress-bg">
+                            <div class="metric-progress-fill" id="bar-chemistry"
+                                style="width: 0%; background: #c084fc;"></div>
+                        </div>
+                    </div>
+                    <div class="glass-card metric-card">
+                        <div class="metric-icon">
+                            <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2"
+                                fill="none">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                            </svg>
+                        </div>
+                        <div class="metric-value skeleton skeleton-text" id="metric-biomath" style="width: 80px;">--
+                        </div>
+                        <div class="metric-label">Math / Bio Avg</div>
+                        <div class="metric-progress-bg">
+                            <div class="metric-progress-fill" id="bar-biomath" style="width: 0%; background: #34d399;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="staggered-4" id="student-recent-view">
+                <div class="section-title" style="margin-top: 24px;">Recent Scores</div>
+                <div class="recent-scores-list" id="recent-scores-container">
+                    <div class="glass-card score-row skeleton" style="height: 70px;"></div>
+                    <div class="glass-card score-row skeleton" style="height: 70px;"></div>
+                </div>
+            </div>
+
+            <!-- Zone 5: Faculty Directory -->
+            <div id="faculty-view" style="display: none;" class="staggered-3">
+                <div class="section-title">Student Directory</div>
+                <div class="glass-card"
+                    style="padding: 16px; margin-bottom: 24px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px; position: relative;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--text-muted)" stroke-width="2"
+                            fill="none" style="position: absolute; left: 16px; top: 14px;">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input type="text" id="faculty-search" placeholder="Search by name or ID..."
+                            style="width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: #fff; padding: 12px 16px 12px 42px; border-radius: 12px; outline: none; transition: border-color 0.2s;">
+                    </div>
+                    <label class="toggle-wrapper">
+                        <input type="checkbox" id="toggle-mentees" class="toggle-input">
+                        <div class="toggle-slider"></div>
+                        My Mentees
+                    </label>
+                </div>
+                <div id="faculty-student-list" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="padding: 24px; text-align: center; color: var(--text-muted);">Loading students...</div>
+                </div>
+            </div>
+        </main>
+
+        <main class="app-content" id="tab-timetable" style="display: none;">
+            <header class="dash-header staggered-1">
+                <h1 style="font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 8px;">Schedules</h1>
+                <p style="color: var(--brand-gold); font-weight: 600; font-size: 0.9rem;" id="timetable-date">Loading...
+                </p>
+            </header>
+            <div class="staggered-2" style="margin-top: 24px;">
+                <div class="segmented-control">
+                    <button class="segment-btn active" id="btn-daily-schedule"
+                        onclick="switchScheduleView('daily')">Daily Classes</button>
+                    <button class="segment-btn" id="btn-test-schedule" onclick="switchScheduleView('tests')">Test
+                        Schedule</button>
+                </div>
+                <div id="timetable-container" class="glass-card"
+                    style="padding: 24px; border-radius: 24px; min-height: 300px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <img id="timetable-img" src=""
+                        style="width: 100%; height: auto; border-radius: 12px; display: none; object-fit: contain;">
+                    <div id="timetable-empty" style="text-align: center; color: var(--text-muted); display: none;">
+                        <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5"
+                            fill="none" style="margin-bottom: 16px; opacity: 0.5;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <p style="font-size: 1rem; line-height: 1.5;" id="empty-state-text">No schedule
+                            published.<br>Enjoy your time off!</p>
+                    </div>
+                </div>
+                <div id="test-schedule-container"
+                    style="display: none; flex-direction: column; gap: 16px; width: 100%;">
+                    <div id="test-list-wrapper" style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
+                    </div>
+                    <div id="test-empty"
+                        style="text-align: center; color: var(--text-muted); padding: 40px 20px; display: none; background: rgba(255,255,255,0.02); border-radius: 16px; border: 1px dashed var(--glass-border);">
+                        <p style="font-size: 0.95rem;">No upcoming tests scheduled.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <main class="app-content" id="tab-orbit" style="display: none;">
+            <header class="dash-header staggered-1">
+                <h1 style="font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 8px;">Orbit</h1>
+                <p style="color: var(--brand-gold); font-weight: 600; font-size: 0.9rem;">Academy Broadcasts</p>
+            </header>
+            <div class="staggered-2" style="margin-top: 24px;">
+                <div id="orbit-feed-container" style="display: flex; flex-direction: column; gap: 16px;">
+                    <div class="glass-card orbit-card skeleton" style="height: 150px;"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FULL PAGE: WCT ANALYTICS HUB -->
+    <main class="slide-over" id="view-wct-hub" style="display: none;">
+        <header class="hub-header" style="justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button class="back-btn" onclick="closeWCTHub()">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <div>
+                    <h1 style="font-size: 1.3rem; font-weight: 700; letter-spacing: -0.02em;">WCT Analytics</h1>
+                </div>
+            </div>
+
+            <!-- UPGRADED GLASS SELECT -->
+            <select id="wct-cycle-select" class="glass-select" onchange="renderWCTCycle(this.value)">
+                <option value="">Loading...</option>
+            </select>
+        </header>
+
+        <div class="hub-scroll-content">
+            <div class="section-title">Cycle Trajectory</div>
+
+            <div class="glass-card chart-card">
+                <div class="chart-title"><span style="color: #60a5fa;">Physics</span> Trend</div>
+                <div class="chart-wrapper"><canvas id="chart-physics"></canvas></div>
+            </div>
+
+            <div class="glass-card chart-card">
+                <div class="chart-title"><span style="color: #c084fc;">Chemistry</span> Trend</div>
+                <div class="chart-wrapper"><canvas id="chart-chemistry"></canvas></div>
+            </div>
+
+            <div class="glass-card chart-card">
+                <div class="chart-title"><span style="color: #34d399;">Bio / Math</span> Trend</div>
+                <div class="chart-wrapper"><canvas id="chart-biomath"></canvas></div>
+            </div>
+
+            <div class="section-title" style="margin-top: 32px;">Test Rounds Log</div>
+            <div id="wct-history-container" style="display: flex; flex-direction: column; gap: 12px;"></div>
+        </div>
+    </main>
+
+    <!-- FULL PAGE: PROFILE HUB -->
+    <main class="slide-over" id="view-profile" style="display: none;">
+        <header class="hub-header">
+            <button class="back-btn" onclick="closeProfile()">
+                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+            </button>
+            <div>
+                <h1 style="font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em;">Student Profile</h1>
+                <p style="color: var(--brand-gold); font-size: 0.85rem; font-weight: 600;" id="profile-role-tag">Academy
+                    Member</p>
+            </div>
+        </header>
+
+        <div class="hub-scroll-content" style="max-width: 600px; margin: 0 auto; width: 100%;">
+            <div class="profile-header-large" style="margin-top: 24px;">
+                <img id="profile-large-avatar" src="" alt="Profile Photo" style="display: none;">
+                <div id="profile-large-placeholder" class="skeleton skeleton-circle"
+                    style="width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--brand-gold);"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <h2 id="profile-name" class="skeleton skeleton-text"
+                    style="color: #fff; font-size: 1.8rem; margin-bottom: 6px; width: 60%; margin-inline: auto;">Loading
+                </h2>
+                <p id="profile-enroll" class="skeleton skeleton-text"
+                    style="color: var(--text-muted); font-size: 1rem; margin-bottom: 32px; font-weight: 500; width: 40%; margin-inline: auto;">
+                    Loading</p>
+            </div>
+
+            <div class="section-title">Contact Information</div>
+            <div class="glass-card" style="padding: 20px; margin-bottom: 24px;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 16px;">
+                    <span style="color: var(--text-muted); font-weight: 600;">Registered Mobile</span>
+                    <span id="profile-mobile" class="skeleton skeleton-text"
+                        style="color: #fff; font-weight: 700; width: 100px;"></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-muted); font-weight: 600;">Course Track</span>
+                    <span id="profile-course" class="skeleton skeleton-text"
+                        style="color: #fff; font-weight: 700; width: 100px;"></span>
+                </div>
+            </div>
+
+            <div class="section-title mentor-card">Academic Mentor</div>
+            <div class="glass-card mentor-card"
+                style="padding: 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+                <div id="mentor-placeholder" class="skeleton skeleton-circle"
+                    style="width: 56px; height: 56px; flex-shrink: 0;"></div>
+                <img id="mentor-avatar" src=""
+                    style="width: 56px; height: 56px; border-radius: 50%; object-fit: cover; border: 2px solid var(--brand-gold); display: none;"
+                    alt="Mentor">
+                <div style="flex: 1;">
+                    <p id="mentor-name" class="skeleton skeleton-text"
+                        style="font-weight: 700; color: #fff; font-size: 1.1rem; margin-bottom: 4px; width: 120px;"></p>
+                    <p id="mentor-contact" class="skeleton skeleton-text"
+                        style="color: var(--text-muted); font-size: 0.9rem; font-weight: 500; width: 80px;"></p>
+                </div>
+                <a id="mentor-call-btn" href="#"
+                    style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; visibility: hidden;">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
+                        </path>
+                    </svg>
+                </a>
+            </div>
+
+            <button onclick="logoutApp()"
+                style="width: 100%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; padding: 18px; border-radius: 16px; font-weight: 700; font-size: 1.05rem; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; transition: all 0.2s;">
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Secure Sign Out
+            </button>
+        </div>
+    </main>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

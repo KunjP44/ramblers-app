@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ramblers Academy</title>
+    <link rel="stylesheet" href="css/app.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="login-body">
+    <div id="splash-screen"
+        style="position: fixed; inset: 0; background: var(--brand-blue); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s;">
+        <img src="images/logo.svg" alt="Ramblers Logo"
+            style="width: 100px; height: 100px; border-radius: 50%; animation: premium-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 20px;">
+        <h2 style="color: #fff; font-size: 1.2rem; font-weight: 700; letter-spacing: 2px;">RAMBLERS ACADEMY</h2>
+    </div>
+    <div class="login-wrapper">
+        <!-- Brand Header -->
+        <div class="login-header">
+            <div class="logo-glow"></div>
+            <img src="images/logo.png" alt="Ramblers Logo" class="app-logo">
+            <h1>Ramblers Academy</h1>
+            <p>Enter your credentials to continue</p>
+        </div>
+
+        <!-- Glassmorphism Login Card -->
+        <div class="glass-card login-card">
+            <form id="app-login-form" autocomplete="off">
+                <div class="form-group">
+                    <label>Academy ID</label>
+                    <input type="text" id="login-id" placeholder="Enrollment No. or Faculty ID" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="DOB (DD/MM/YYYY) or Password" required>
+                </div>
+
+                <button type="submit" class="btn-primary ripple" id="btn-login">Secure Login</button>
+            </form>
+            <div id="login-error" class="error-msg" style="display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Cinematic Splash Screen -->
+    <div id="splash-screen"
+        style="position: fixed; inset: 0; background: var(--brand-blue); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s;">
+        <img src="images/logo.svg" alt="Ramblers Logo"
+            style="width: 100px; height: 100px; border-radius: 50%; animation: premium-pulse 1.5s infinite cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 20px;">
+        <h2 style="color: #fff; font-size: 1.2rem; font-weight: 700; letter-spacing: 2px;">RAMBLERS ACADEMY</h2>
+    </div>
+
+    <script>
+        // Smoothly dismiss splash screen once the DOM loads
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                if (splash) {
+                    splash.style.opacity = '0';
+                    splash.style.visibility = 'hidden';
+                    setTimeout(() => splash.remove(), 500);
+                }
+            }, 1200); // 1.2 second branded introduction
+        });
+    </script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+{
+  "appId": "com.ramblers.academy",
+  "appName": "Ramblers Academy",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
